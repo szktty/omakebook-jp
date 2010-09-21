@@ -1,0 +1,16 @@
+.DS_Store
+*.a
+*.i
+*.o
+*.dylib
+*.so
+
+*.swp
+*.swo
+
+*.pyc
+*.pyo
+
+*.omc
+.omake*
+

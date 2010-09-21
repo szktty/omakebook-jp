@@ -1,0 +1,344 @@
+.. _FirstStep:
+
+================
+3 章: 最初の一歩
+================
+
+この章では、簡単なプロジェクトを通じて OMake の基本的な使い方を見ていきます。
+
+
+プロジェクトの準備
+==================
+
+ビルドするファイルは C ソースファイル一つのみとします (``hello.c``) 。ソースファイルの中身はよくある Hello, world を出力するだけのコードです。
+
+``hello.c``::
+
+ #include <stdio.h>
+
+ int main(int argc, char **argv) {
+   printf("Hello, world!\n");
+   return 0;
+ }
+
+.. index:: OMakeroot, OMakefile, omake コマンド; --install
+
+``hello.c`` ファイルを用意したら、そのディレクトリで次のコマンドを実行してください。
+
+::
+
+ % omake --install
+ *** omake: creating OMakeroot
+ *** omake: creating OMakefile
+ *** omake: project files OMakefile and OMakeroot have been installed
+ *** omake: you should edit these files before continuing
+
+このコマンドを実行すると、 ``OMakeroot`` ファイルと ``OMakefile`` ファイルが生成されます。 OMake ではこれらのファイルにビルドの設定を書きます。自分で空のファイルを生成しても大丈夫ですが、 ``omake --install`` コマンドを使うとテンプレートを生成してくれるので便利です。
+
+``omake --install`` 実行後のディレクトリ構成::
+
+ OMakeroot
+ OMakefile
+ hello.c
+
+これで準備ができました。 ``OMakeroot`` ファイルと ``OMakefile`` ファイルの違いについては、後々触れていきます。
+
+
+OMake を実行してみる
+====================
+
+``OMakeroot`` ファイルと ``OMakefile`` ファイルを用意できたので、これで OMake を実行できるようになります。まだビルドの設定を何も書いていませんが、 OMake を実行してみましょう。同じディレクトリで ``omake`` コマンドを実行します。
+
+::
+
+ % omake
+ *** omake: reading OMakefiles
+ ./OMakefile is not configured
+ *** omake: finished reading OMakefiles (0.19 sec)
+ *** omake: done (0.19 sec, 0/0 scans, 0/0 rules, 10/47 digests)
+
+上記のメッセージが表示されれば成功です。 ``*** omake:`` で始まる行は OMake のログメッセージです。最後に実行に要した時間を表示しています。
+
+二行目に ``./OMakefile is not configured`` (``OMakefile`` は設定されていない) というメッセージが表示されています。これは ``--install`` オプションで生成した ``OMakefile`` ファイルに含まれている処理です。 ``OMakefile`` ファイルの内容はこのメッセージの表示と書き方についてのコメント ( ``#`` で始まる行) のみですので、すべて削除しても構いません。  ``OMakefile`` ファイルを空にしてから ``omake`` コマンドを実行すると、先程表示されていたメッセージが表示されなくなります。
+
+::
+
+ % omake
+ *** omake: reading OMakefiles
+ *** omake: finished reading OMakefiles (0.01 sec)
+ *** omake: done (0.01 sec, 0/0 scans, 0/0 rules, 1/41 digests)
+
+``OMakeroot`` ファイルはそのままにしておいてください。まだ編集する必要はありません。
+
+
+.. index:: キャッシュファイル, OMakeroot.omc, OMakefile.omc, .omakedb, .omakedb.lock
+.. note:: **OMake のキャッシュファイル**
+
+   OMake を実行すると、 ``OMakeroot.omc`` ファイルと ``OMakefile.omc`` ファイル が生成されます。拡張子が ``omc`` のこれらのファイルは、 OMake が使うキャッシュファイルです。 OMake はこれ以外にも自身が使う ``.omakedb`` ファイルと ``.omakedb.lock`` ファイルを生成します。 OMake のコードを変更したのに反映されていないと思ったら、これらのキャッシュファイルを削除してから実行するとうまくいくことがあります。
+
+
+``hello.c`` ファイルのビルド
+============================
+
+それでは ``hello.c`` ファイルのビルドの設定を行います。 ``OMakefile`` ファイルに次のコードを記述してください。 2 行目のインデントはタブでもスペースでも構いません。
+
+::
+
+ hello: hello.c
+     cc -o hello hello.c
+
+``omake`` コマンドの引数に ``hello`` を渡して実行すると、 ``hello.c`` ファイルがコンパイルされて ``hello`` コマンドが生成されます。
+
+::
+
+ % omake hello
+ *** omake: reading OMakefiles
+ *** omake: finished reading OMakefiles (0.01 sec)
+ *** omake: done (0.44 sec, 0/0 scans, 1/1 rules, 2/73 digests)
+
+ % ls
+ OMakefile       OMakeroot       hello
+ OMakefile.omc   OMakeroot.omc   hello.c
+
+ % ./hello
+ Hello, world!
+
+何らかのエラーが表示されたら、 ``OMakefile`` ファイルのコードが正しいかどうか、コンパイルのコマンド (``cc -o hello hello.c``) が正しく実行できるかどうか確認してください。例えば次のエラーは、 ``cc`` コマンド (C コンパイラ) が見つからないと表示されます。もしこのエラーが表示されたら、 C コンパイラのインストールの有無やコマンドパスを確認してください。
+
+例) ``cc`` コマンドが見つからない場合のエラー::
+
+ % omake hello
+ *** omake: reading OMakefiles
+ *** omake: finished reading OMakefiles (0.01 sec)
+ - build . hello
+ + cc -o hello hello.c
+    *** process creation failed:
+    *** omake error:
+       File OMakefile: line 2, characters 4-24
+       command not found in PATH: cc
+ *** omake: 12/13 targets are up to date
+ *** omake: failed (0.02 sec, 0/0 scans, 1/1 rules, 11/72 digests)
+ *** omake: targets were not rebuilt because of errors:
+    hello
+       depends on: hello.c
+
+
+.. index:: ルール, ターゲット
+
+ルールとターゲット
+==================
+
+今 ``OMakefile`` ファイルに記述したコードは、 ``hello.c`` ファイルをビルドするための **ルール** です。このコードの目的は、「 ``hello.c`` ファイルをコンパイルして、実行可能なプログラム ``hello`` を生成する」ことでした。 OMake はこれを「 ``hello`` プログラムを生成するために必要なものは ``hello.c`` ファイルで、生成には ``hello.c`` ファイルをコンパイルするコマンドを実行する」と、結果から必要な処理をたどる解釈をします。この生成されるべき結果を **ターゲット** と呼びます。
+
+``hello`` プログラムを生成するルール (OMake の解釈)::
+
+ # 結果として生成されるファイル: 必要なファイル
+ hello: hello.c
+     # 結果を出すための処理
+     cc -o hello hello.c
+
+このビルドを実行したコマンド ``omake hello`` は、「 (ターゲット) ``hello`` ファイルをビルドせよ」という意味です。 OMake は ``hello`` ファイルをビルドするためのルールに従って ``hello.c`` ファイルをコンパイルします。その結果 ``hello`` ファイルが生成されれば、ルールとビルドは成功です。
+
+このように、ルールとは「ターゲットを生成するために必要な (= 依存する) ターゲットとコマンド」です。あらためて基本的な文法を次に示します。
+
+ルールの文法::
+
+ ターゲット ... : 依存するターゲット ...
+   コマンド
+   ...
+
+.. index:: インデント
+
+ターゲットには、ビルドで生成されるファイル名を指定します。依存するターゲットには、ターゲットのビルドを行う前に生成されていなければならないファイル名を指定します。コマンドには、ターゲットをビルドするコマンドをインデントして記述します。インデントはタブでもスペースでも構いませんが、混在させてはいけません。また、同じブロックでインデントの深さを変えてはいけません。
+
+インデントの間違いの例::
+
+ # タブとスペースを混ぜる (見えませんが)
+ hello: hello.c
+   cc -o hello.o hello.c # タブ
+   cc -o hello hello.o   # スペース
+
+ # 同じブロックでインデントの深さが異なる
+ hello: hello.c
+   cc -o hello.o hello.c
+     cc -o hello hello.o
+
+ # 制御構文など、ブロックが深くなる場合はインデントの深さは変わる
+ hello:
+   if true
+     echo Hello, world!
+
+   # ただし、前のブロックとインデントの深さを揃えなくてもいいらしい
+   if true
+           echo Hello, world, again!
+
+
+``OMakeroot`` ファイルと ``OMakefile`` ファイル
+===============================================
+
+ここまでで、 ``hello.c`` ファイルのビルドについて一通り見てきました。 ``hello.c`` ファイルのビルドルールにはまだ改良の余地がありますが、その前に ``OMakeroot`` ファイルと ``OMakefile`` ファイルについて説明します。
+
+``OMakeroot`` ファイルと ``OMakefile`` ファイルの内容に違いはありません。どちらにどのようなビルドの設定を書こうが自由です。二つのファイルの違いは、 ``OMakeroot`` ファイルはプロジェクトのルートディレクトリにのみ置けるのに対し、 ``OMakefile`` ファイルは各サブディレクトリにも置けることです。サブディレクトリを含むプロジェクトの多くは、次のようにビルドファイルを配置します。サブディレクトリを含むプロジェクトについては、 :ref:`プロジェクト管理 <ProjectManagement>` で詳しく扱います。
+
+``OMakeroot`` ファイルと ``OMakefile`` ファイルの配置::
+
+  OMakeroot
+  OMakefile
+  doc/
+    OMakefile
+    ...
+  src/
+    OMakefile
+    ...
+
+``OMakeroot`` ファイルは必ず用意しなければなりません。OMake は ``OMakeroot`` ファイルのあるディレクトリを、プロジェクトのルートディレクトリとして認識します。サブディレクトリで OMake を実行すると、 OMake は ``OMakeroot`` ファイルを探してルートディレクトリを確認します。
+
+ルートディレクトリを示すこと以外に ``OMakeroot`` ファイルと (ルートディレクトリにある)  ``OMakefile`` ファイルの違いはありませんが、慣習的には次のように使い分けられているようです。
+
+* ``OMakeroot`` ファイルには、プロジェクト全体から参照される、または影響するビルド設定を書く。
+* ``OMakefile`` ファイルには、自身のディレクトリに関するビルド設定を書く。
+
+.. index:: make との違い; サブディレクトリの扱い
+
+.. note::  **make との違い**
+
+   make でも ``Makefile`` ファイルを各サブディレクトリに置いてプロジェクトを管理することがよくあります。ただし、 make では各サブディレクトリに置いた ``Makefile`` ファイルは、あくまで個別に実行される ``Makefile`` ファイルです。親ディレクトリの ``Makefile`` ファイルからサブディレクトリのビルドを行う場合は、サブディレクトリに移動して make を実行します。そのため親ディレクトリで動く make のプロセスとサブディレクトリで動く make のプロセスは別になり、依存関係の設定がサブディレクトリで断たれてしまいます。
+
+   OMake では、サブディレクトリの ``OMakefile`` ファイルも含めてプロジェクト全体の依存関係を構築します。サブディレクトリを管理するために、ルートディレクトリを示す ``OMakeroot`` ファイルが必要となります。
+
+
+インストールされる ``OMakeroot`` ファイルの内容
+-----------------------------------------------
+
+``OMakeroot`` ファイル::
+
+ ########################################################################
+ # Permission is hereby granted, free of charge, to any person
+ # obtaining a copy of this file, to deal in the File without
+ # restriction, including without limitation the rights to use,
+ # copy, modify, merge, publish, distribute, sublicense, and/or
+ # sell copies of the File, and to permit persons to whom the
+ # File is furnished to do so, subject to the following condition:
+ #
+ # THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ # OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE FILE OR
+ # THE USE OR OTHER DEALINGS IN THE FILE.
+
+ ########################################################################
+ # The standard OMakeroot file.
+ # You will not normally need to modify this file.
+ # By default, your changes should be placed in the
+ # OMakefile in this directory.
+ #
+ # If you decide to modify this file, note that it uses exactly
+ # the same syntax as the OMakefile.
+ #
+
+ #
+ # Include the standard installed configuration files.
+ # Any of these can be deleted if you are not using them,
+ # but you probably want to keep the Common file.
+ #
+ open build/C
+ open build/OCaml
+ open build/LaTeX
+
+ #
+ # The command-line variables are defined *after* the
+ # standard configuration has been loaded.
+ #
+ DefineCommandVars()
+
+ #
+ # Include the OMakefile in this directory.
+ #
+ .SUBDIRS: .
+
+それでは ``OMakefile`` ファイルの内容を見ていきましょう。その前に ``OMakefile`` ファイルに記述できる内容を次に示します。先に触れたように、これは ``OMakeroot`` ファイルでも一緒です。
+
+* シェルコマンドの実行
+* 変数の定義
+* 関数の呼び出し
+* 関数の定義
+* ルールの定義
+
+.. index::
+   pair: OMakeroot; ライセンス
+   pair: OMakefile; ライセンス
+
+.. note:: **OMakeroot ファイルと OMakefile ファイルのライセンス**
+
+   OMake のライセンスは GPL ですが、 OMake の標準ライブラリと ``omake --install`` で生成したファイル (``OMakeroot`` ファイルと ``OMakefile`` ファイル) のライセンスは MIT ライセンスです。プロジェクトへの組み込み時のライセンスについて心配する必要はありません。
+   
+
+もう少し便利にする
+==================
+
+ターゲットの指定を省略する
+--------------------------
+
+.. index:: .DEFAULT
+
+`.DEFAULT`` は特殊なルールで、 ``omake`` コマンドで何も **ターゲット** を指定しない場合に実行されます。
+
+
+
+C プログラムをビルドする関数を使う
+----------------------------------
+
+.. index:: CProgram()
+
+::
+
+ .DEFAULT: $(CProgram hello, hello)
+
+
+::
+
+ % omake
+ *** omake: reading OMakefiles
+ *** omake: finished reading OMakefiles (0.05 sec)
+ --- Checking for gcc... (found /usr/bin/gcc)
+ --- Checking for g++... (found /usr/bin/g++)
+ *** omake: done (0.12 sec, 1/1 scans, 2/2 rules, 13/84 digests)
+
+ % ls
+ OMakefile       OMakeroot       hello           hello.o
+ OMakefile.omc   OMakeroot.omc   hello.c
+
+
+CProgram, Checking for ...
+
+
+
+
+処理の流れ
+==========
+
+* OMakeroot の探索
+* OMakefile のロード。上から順に評価
+* 依存関係グラフの生成、静的ルールの定義
+* ターゲットルールの実行
+
+依存関係グラフは動的に更新される
+
+
+``hello.c`` の例
+
+
+まとめ
+======
+
+* ``omake --install`` コマンドで ``OMakeroot`` ファイルと ``OMakefile`` ファイルのテンプレートを生成できる。
+
+.. note:: **ある対話**
+
+   |
+   | **M**: Makefile に似た OMakefile とか make との違いがどうとか、 make 知らないといけませんか？
+   | **S**: 知ってるほうが文法的にはとっつきやすいでしょうが、 make の知識が足を引っ張ることもあったり。知ってるほうがいいけど知らないほうがいいです。
+   | **M**: どっちですか。
+ 
