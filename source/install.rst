@@ -80,9 +80,9 @@ OMake の最新バージョンのリリース日時は少し古く、最新の O
 
 ::
 
- make bootstrap
- make all
- make install
+ % make bootstrap
+ % make all
+ % make install
 
 
 Solaris でのビルドとインストール
