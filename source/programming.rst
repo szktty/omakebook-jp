@@ -117,6 +117,12 @@ OMake のドキュメントやエラーメッセージでは、文字列はシ�
    CProgram
 
 
+.. _IncludingFiles:
+
+ファイルのインクルード
+----------------------
+
+* include と open の違い
 
 .. index:: 配列
 
