@@ -12,6 +12,8 @@
 
 ビルドするファイルは C ソースファイル一つのみとします (``hello.c``) 。ソースファイルの中身はよくある Hello, world を出力するだけのコードです。
 
+.. note:: C について詳しくなくても問題ありません。 C ソースファイルは C コンパイラ (``cc`` コマンドや ``gcc`` コマンドなど) で実行可能なプログラムにできる、ということだけ頭に入れておいてください。
+
 ``hello.c``::
 
  #include <stdio.h>
@@ -137,7 +139,7 @@ OMake を実行してみる
      # 結果を出すための処理
      cc -o hello hello.c
 
-このビルドを実行したコマンド ``omake hello`` は、「 (ターゲット) ``hello`` ファイルをビルドせよ」という意味です。 OMake は ``hello`` ファイルをビルドするためのルールに従って ``hello.c`` ファイルをコンパイルします。その結果 ``hello`` ファイルが生成されれば、ルールとビルドは成功です。
+このビルドを実行したコマンド ``omake hello`` は、「 ターゲット ``hello`` (``hello`` ファイル) をビルドせよ」という意味です。 OMake は ``hello`` ファイルをビルドするためのルールに従って ``hello.c`` ファイルをコンパイルします。その結果 ``hello`` ファイルが生成されれば、ルールとビルドは成功です。
 
 このように、ルールとは「ターゲットを生成するために必要な (= 依存する) ターゲットとコマンド」です。あらためて基本的な文法を次に示します。
 
@@ -195,8 +197,8 @@ OMake を実行してみる
 
 ルートディレクトリを示すこと以外に ``OMakeroot`` ファイルと (ルートディレクトリにある)  ``OMakefile`` ファイルの違いはありませんが、慣習的には次のように使い分けられているようです。
 
-* ``OMakeroot`` ファイルには、プロジェクト全体から参照される、または影響するビルド設定を書く。
-* ``OMakefile`` ファイルには、自身のディレクトリに関するビルド設定を書く。
+*  プロジェクト全体から参照される、または影響する設定はルートディレクトリの ``OMakefile`` に書き、 ``OMakeroot`` には基本的に手を加えないようにします。 OMake のドキュメントではこちらを推奨しています。
+* グローバルな設定を ``OMakeroot`` ファイルに書き、ルートディレクトリの ``OMakefile`` ファイルには、ルートディレクトリで行うべき設定を書きます。
 
 .. index:: make との違い; サブディレクトリの扱い
 
@@ -210,7 +212,9 @@ OMake を実行してみる
 インストールされる ``OMakeroot`` ファイルの内容
 -----------------------------------------------
 
-``OMakeroot`` ファイル::
+それでは ``OMakefile`` ファイルの内容を見ていきましょう。次に ``--install`` オプションで生成されるファイルの内容を示します。ここではライセンスの記述以外を訳してあります。
+
+``--install`` オプションで生成される ``OMakeroot`` ファイル::
 
  ########################################################################
  # Permission is hereby granted, free of charge, to any person
@@ -229,51 +233,60 @@ OMake を実行してみる
  # THE USE OR OTHER DEALINGS IN THE FILE.
 
  ########################################################################
- # The standard OMakeroot file.
- # You will not normally need to modify this file.
- # By default, your changes should be placed in the
- # OMakefile in this directory.
+ # 標準的な OMakeroot ファイル。
+ # 通常、このファイルを編集する必要はないでしょう。
+ # 設定の変更は (このディレクトリにある) OMakefile に記述するべきです。
  #
- # If you decide to modify this file, note that it uses exactly
- # the same syntax as the OMakefile.
+ # このファイルを編集するのであれば、
+ # OMakefile とまったく同じ文法で記述してください。
  #
 
  #
- # Include the standard installed configuration files.
- # Any of these can be deleted if you are not using them,
- # but you probably want to keep the Common file.
+ # (OMake と共に) インストールされている設定ファイルを読み込みます。
+ # 使わないファイルがあれば削除することもできますが、
+ # おそらくこの共通ファイルを編集したいとは思わないでしょう。
  #
  open build/C
  open build/OCaml
  open build/LaTeX
 
  #
- # The command-line variables are defined *after* the
- # standard configuration has been loaded.
+ # 標準の設定ファイルを読み込んだ後、コマンドライン変数を再定義します。
  #
  DefineCommandVars()
 
  #
- # Include the OMakefile in this directory.
+ # このディレクトリにある OMakefile を読み込みます。
  #
  .SUBDIRS: .
-
-それでは ``OMakefile`` ファイルの内容を見ていきましょう。その前に ``OMakefile`` ファイルに記述できる内容を次に示します。先に触れたように、これは ``OMakeroot`` ファイルでも一緒です。
-
-* シェルコマンドの実行
-* 変数の定義
-* 関数の呼び出し
-* 関数の定義
-* ルールの定義
 
 .. index::
    pair: OMakeroot; ライセンス
    pair: OMakefile; ライセンス
 
-.. note:: **OMakeroot ファイルと OMakefile ファイルのライセンス**
+長いように見えて、大半はコメントです。先頭にはライセンスが記述されています。 ``--install`` オプションで生成されるファイルは MIT ライセンスであり、プロジェクトへの組み込み時のライセンスについて心配する必要はありません。
 
-   OMake のライセンスは GPL ですが、 OMake の標準ライブラリと ``omake --install`` で生成したファイル (``OMakeroot`` ファイルと ``OMakefile`` ファイル) のライセンスは MIT ライセンスです。プロジェクトへの組み込み時のライセンスについて心配する必要はありません。
-   
+.. index:: open
+
+``open ...``
+^^^^^^^^^^^^
+
+``open`` は他の OMake ソースファイル (拡張子が ``.om``) を読み込み、そのファイルで定義された変数や関数を使えるようにします。指定したファイルはいくつかのパスから検索されます。デフォルトでは ``open`` を記述した OMake ソースファイルのあるパスと (``.`` としたほうがわかりやすいでしょうか) 、 OMake の標準ライブラリのパスです。
+
+ここで読み込まれているのは、標準ライブラリの ``build/C`` 、 ``build/OCaml`` 、 ``build/LaTeX`` の三つです。名前の通り、それぞれ C 、 OCaml 、 LaTeX のための便利な関数などが定義されていますが、必要なければこれらの行を削除しても問題ありません。
+
+``open`` についてさらに詳しく知りたければ、 :ref:`ファイルのインクルード <IncludingFiles>` を参照してください。
+
+
+.. index:: DefineCommandVars()
+
+``DefineCommandVars()``
+^^^^^^^^^^^^^^^^^^^^^^^
+
+``.SUBDIRS: .``
+^^^^^^^^^^^^^^^
+
+
 
 もう少し便利にする
 ==================
