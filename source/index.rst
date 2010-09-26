@@ -26,6 +26,7 @@
    troubleshooting
    install
    osh
+   examples
 
 
 表と索引
