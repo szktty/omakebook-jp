@@ -259,6 +259,8 @@ exit
    single: DefineCommandVars()
    pair: 変数定義; コマンドライン
 
+.. _DefineCommandVars:
+
 コマンドラインで変数を定義する
 ------------------------------
 
