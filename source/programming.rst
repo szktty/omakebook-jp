@@ -330,3 +330,12 @@ exit
  DefineCommandVars()
 
 
+.. index::
+   single: .SUBDIRS
+   pair: OMakefile; サブディレクトリ
+
+.. _LoadSubdirectories:
+
+サブディレクトリの ``OMakefile`` ファイルを読み込む
+---------------------------------------------------
+
