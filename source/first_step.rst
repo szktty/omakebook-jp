@@ -209,12 +209,71 @@ OMake を実行してみる
    OMake では、サブディレクトリの ``OMakefile`` ファイルも含めてプロジェクト全体の依存関係を構築します。サブディレクトリを管理するために、ルートディレクトリを示す ``OMakeroot`` ファイルが必要となります。
 
 
+
+もう少し便利にする
+==================
+
+ターゲットの指定を省略する
+--------------------------
+
+.. index:: .DEFAULT
+
+`.DEFAULT`` は特殊なルールで、 ``omake`` コマンドで何も **ターゲット** を指定しない場合に実行されます。
+
+
+
+C プログラムをビルドする関数を使う
+----------------------------------
+
+.. index:: CProgram()
+
+::
+
+ .DEFAULT: $(CProgram hello, hello)
+
+
+::
+
+ % omake
+ *** omake: reading OMakefiles
+ *** omake: finished reading OMakefiles (0.05 sec)
+ --- Checking for gcc... (found /usr/bin/gcc)
+ --- Checking for g++... (found /usr/bin/g++)
+ *** omake: done (0.12 sec, 1/1 scans, 2/2 rules, 13/84 digests)
+
+ % ls
+ OMakefile       OMakeroot       hello           hello.o
+ OMakefile.omc   OMakeroot.omc   hello.c
+
+
+CProgram, Checking for ...
+
+
+
+
+処理の流れ
+==========
+
+* OMakeroot の探索
+* OMakefile のロード。上から順に評価
+* 依存関係グラフの生成、静的ルールの定義
+* ターゲットルールの実行
+
+依存関係グラフは動的に更新される
+
+
+``hello.c`` の例
+
+
+おまけ: 予習
+============
+
 インストールされる ``OMakeroot`` ファイルの内容
 -----------------------------------------------
 
-それでは ``OMakefile`` ファイルの内容を見ていきましょう。次に ``--install`` オプションで生成されるファイルの内容を示します。ここではライセンスの記述以外を訳してあります。
+インストールされる (``--install`` オプションで生成される) ``OMakefile`` ファイルの内容はほとんどがコメントアウトされていますが、 ``OMakeroot`` ファイルにはいくらかコードが含まれています。次にインストールされる ``OMakeroot`` ファイルの内容を示します。ここではライセンスの記述以外を訳してあります。
 
-``--install`` オプションで生成される ``OMakeroot`` ファイル::
+インストールされる ``OMakeroot`` ファイル::
 
  ########################################################################
  # Permission is hereby granted, free of charge, to any person
@@ -286,64 +345,12 @@ OMake を実行してみる
 ``DefineCommandVars()`` は **コマンドライン変数** を読み込む **関数** です (OMake では関数が使え、定義もできます。以降、少しずつ触れていきます) 。コマンドライン変数は「変数=値」の形で渡されるコマンドライン引数のことで、この関数を呼ぶと再定義されます。実はわざわざこの関数を使わなくてもコマンドライン変数は定義されますが、変数によっては前述の ``open`` したファイル内で上書きされてしまうために、 ``open`` 後に ``DefineCommandVars()`` で再定義しています (まだ意味がわからなくても問題ありません) 。詳しくは :ref:`コマンドラインで変数を定義する <DefineCommandVars>` を参照してください。
 
 
+.. index:: .SUBDIRS
+
 ``.SUBDIRS: .``
 ^^^^^^^^^^^^^^^
 
-
-
-もう少し便利にする
-==================
-
-ターゲットの指定を省略する
---------------------------
-
-.. index:: .DEFAULT
-
-`.DEFAULT`` は特殊なルールで、 ``omake`` コマンドで何も **ターゲット** を指定しない場合に実行されます。
-
-
-
-C プログラムをビルドする関数を使う
-----------------------------------
-
-.. index:: CProgram()
-
-::
-
- .DEFAULT: $(CProgram hello, hello)
-
-
-::
-
- % omake
- *** omake: reading OMakefiles
- *** omake: finished reading OMakefiles (0.05 sec)
- --- Checking for gcc... (found /usr/bin/gcc)
- --- Checking for g++... (found /usr/bin/g++)
- *** omake: done (0.12 sec, 1/1 scans, 2/2 rules, 13/84 digests)
-
- % ls
- OMakefile       OMakeroot       hello           hello.o
- OMakefile.omc   OMakeroot.omc   hello.c
-
-
-CProgram, Checking for ...
-
-
-
-
-処理の流れ
-==========
-
-* OMakeroot の探索
-* OMakefile のロード。上から順に評価
-* 依存関係グラフの生成、静的ルールの定義
-* ターゲットルールの実行
-
-依存関係グラフは動的に更新される
-
-
-``hello.c`` の例
+``.SUBDIRS`` はサブディレクトリの ``OMakefile`` ファイルを読み込む特殊なルールです。 ``.`` はカレントディレクトリを表しており、 ``.SUBDIRS: .`` は ``OMakeroot`` ファイルのあるディレクトリの (つまりルートディレクトリの) ``OMakefile`` ファイルを読み込みます。詳しくは :ref:`サブディレクトリの OMakefile ファイルを読み込む <LoadSubdirectories>` を参照してください。
 
 
 まとめ
