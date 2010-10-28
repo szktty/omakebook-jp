@@ -40,39 +40,42 @@
 :ref:`3 章: 最初の一歩 <FirstStep>`
   簡単なプロジェクトを通じて、 OMake の基本的な使い方を学びます。
 
-:ref:`4 章: OMake プログラミング <OMakeProgramming>`
+:ref:`4 章: 次の一歩 <SecondStep>`
+  OMake の便利な使い方や実行の仕組みを学びます。普通に使う分には (ライブラリを作ったり新しい言語に対応させたりしない分には) 、ここまで理解すれば十分です。
+
+:ref:`5 章: OMake プログラミング <OMakeProgramming>`
   OMake の核である OMake 言語について解説します。
 
-:ref:`5 章: ルール <Rules>`
+:ref:`6 章: ルール <Rules>`
   プログラムをビルドするためのルールの定義について解説します。
 
-:ref:`6 章: ビルドの実行 <ExecutingBuild>`
+:ref:`7 章: ビルドの実行 <ExecutingBuild>`
   並列ビルド、継続監視ビルドなどのビルドの実行方法について解説します。
 
-:ref:`7 章: 自動設定 <Autoconf>`
+:ref:`8 章: 自動設定 <Autoconf>`
 
-:ref:`8 章: プロジェクト管理 <ProjectManagement>`
+:ref:`9 章: プロジェクト管理 <ProjectManagement>`
   OMake を使ったプロジェクトの管理について解説します。
 
-:ref:`9 章: C ソースファイルのビルド <BuildingCSourceFiles>`
+:ref:`10 章: C ソースファイルのビルド <BuildingCSourceFiles>`
   C ソースファイルのビルドについて解説します。 flex/bison (lex/yacc) のソースファイルの扱いについても触れます。
 
-:ref:`10 章: C++ ソースファイルのビルド <BuildingCPPSourceFiles>`
+:ref:`11 章: C++ ソースファイルのビルド <BuildingCPPSourceFiles>`
   C++ ソースファイルのビルドについて解説します。
 
-:ref:`11 章: カスタマイズ <Customization>`
+:ref:`12 章: カスタマイズ <Customization>`
   OMake のカスタマイズについて解説します。新しいプログラミング言語・ツールに対応させる方法や、動的にルールを定義する関数の定義などの話題を扱います。
 
-:ref:`12 章: デバッグ <Debug>`
+:ref:`13 章: デバッグ <Debug>`
   OMake ファイルのデバッグ方法について解説します。
 
-:ref:`13 章: 移植可能な OMake ファイルを書く <Portability>`
+:ref:`14 章: 移植可能な OMake ファイルを書く <Portability>`
   複数のプラットフォームで動作する OMake ファイルを書く際の注意について解説します。
 
-:ref:`14 章: make から OMake への移行 <MakeToOMake>`
+:ref:`15 章: make から OMake への移行 <MakeToOMake>`
   make から OMake への移行について解説します。 make と OMake の違いや make ファイルを OMake ファイルに書き換える際の注意について解説します。
 
-:ref:`15 章: トラブルシューティング <Troubleshooting>`
+:ref:`16 章: トラブルシューティング <Troubleshooting>`
   OMake を使う上でよくあるエラーと解決方法について解説します。
 
 :ref:`付録 A: ビルドとインストール <BuildAndInstall>`
